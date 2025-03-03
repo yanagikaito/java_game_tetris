@@ -2,6 +2,7 @@ package window;
 
 import factory.FrameFactory;
 import frame.GameFrame;
+import game.PlayManager;
 
 import javax.swing.*;
 
@@ -12,6 +13,7 @@ import static frame.FrameApp.baseDisplay;
 public class GameWindow extends JPanel implements Window, Runnable {
 
     private GameFrame gameFrame = FrameFactory.createFrame(baseDisplay());
+    private PlayManager playManager = new PlayManager(360, 600);
     private Thread gameThread;
 
     public GameWindow() {
@@ -19,6 +21,7 @@ public class GameWindow extends JPanel implements Window, Runnable {
         this.setDoubleBuffered(true);
         this.setFocusable(true);
         this.startThread();
+        playManager.init();
     }
 
     @Override
@@ -65,5 +68,13 @@ public class GameWindow extends JPanel implements Window, Runnable {
 
     public void update() {
 
+        playManager.update();
+    }
+
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+
+        Graphics2D g2 = (Graphics2D) g;
+        playManager.draw(g2);
     }
 }
