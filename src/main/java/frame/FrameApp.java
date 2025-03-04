@@ -3,8 +3,8 @@ package frame;
 public class FrameApp {
     public static FrameSize baseDisplay() {
 
-        int maxScreenRow = 20;
-        int maxScreenCol = 16;
+        int maxScreenRow = 24;
+        int maxScreenCol = 20;
         int tileSize = createSize();
         int screenWidth = tileSize * maxScreenRow;
         int screenHeight = tileSize * maxScreenCol;
