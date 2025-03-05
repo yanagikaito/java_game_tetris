@@ -2,6 +2,7 @@ package window;
 
 import factory.FrameFactory;
 import frame.GameFrame;
+import game.KeyHandler;
 import game.PlayManager;
 
 import javax.swing.*;
@@ -14,6 +15,7 @@ public class GameWindow extends JPanel implements Window, Runnable {
 
     private GameFrame gameFrame = FrameFactory.createFrame(baseDisplay());
     private PlayManager playManager = new PlayManager();
+    private KeyHandler keyHandler = new KeyHandler();
     private Thread gameThread;
 
     public GameWindow() {
@@ -21,6 +23,8 @@ public class GameWindow extends JPanel implements Window, Runnable {
         this.setDoubleBuffered(true);
         this.setFocusable(true);
         this.startThread();
+        this.addKeyListener(keyHandler);
+        this.setFocusable(true);
     }
 
     @Override
