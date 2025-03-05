@@ -20,6 +20,8 @@ public class PlayManager {
     final int MINO_START_X;
     final int MINO_START_Y;
 
+    public static int dropInterval = 60;
+
     public PlayManager() {
         left_x = (FrameApp.baseDisplay().width() / 2) - (WIDTH / 2);
         right_x = left_x + WIDTH;

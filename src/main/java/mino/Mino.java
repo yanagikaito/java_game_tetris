@@ -2,13 +2,25 @@ package mino;
 
 import block.Block;
 import block.BlockApp;
+import game.KeyHandler;
+import game.PlayManager;
 
 import java.awt.*;
 
-public class Mino {
+public abstract class Mino {
 
     public BlockApp[] block = new BlockApp[4];
     public BlockApp[] tempB = new BlockApp[4];
+    public int autoDropCounter = 0;
+    public int direction = 1;
+
+    public abstract void getDirection1();
+
+    public abstract void getDirection2();
+
+    public abstract void getDirection3();
+
+    public abstract void getDirection4();
 
     public Block createBlock(Color c) {
 
@@ -25,28 +37,88 @@ public class Mino {
         };
     }
 
-    public void setXY(int x, int y) {
-
-    }
+    public abstract void setXY(int x, int y);
 
     public void updateXY(int direction) {
 
+        this.direction = direction;
+        block[0].blockX = tempB[0].blockX;
+        block[0].blockY = tempB[0].blockY;
+        block[1].blockX = tempB[1].blockX;
+        block[1].blockY = tempB[1].blockY;
+        block[2].blockX = tempB[2].blockX;
+        block[2].blockY = tempB[2].blockY;
+        block[3].blockX = tempB[3].blockX;
+        block[3].blockY = tempB[3].blockY;
     }
 
     public void update() {
 
+        if (KeyHandler.upPressed) {
+            switch (direction) {
+                case 1:
+                    getDirection2();
+                    break;
+                case 2:
+                    getDirection3();
+                    break;
+                case 3:
+                    getDirection4();
+                    break;
+                case 4:
+                    getDirection1();
+                    break;
+            }
+            KeyHandler.upPressed = false;
+        }
+        if (KeyHandler.downPressed) {
+
+            block[0].blockY += BlockApp.createBlockSize().SIZE();
+            block[1].blockY += BlockApp.createBlockSize().SIZE();
+            block[2].blockY += BlockApp.createBlockSize().SIZE();
+            block[3].blockY += BlockApp.createBlockSize().SIZE();
+
+            autoDropCounter = 0;
+
+            KeyHandler.downPressed = false;
+
+        }
+        if (KeyHandler.leftPressed) {
+
+            block[0].blockX -= BlockApp.createBlockSize().SIZE();
+            block[1].blockX -= BlockApp.createBlockSize().SIZE();
+            block[2].blockX -= BlockApp.createBlockSize().SIZE();
+            block[3].blockX -= BlockApp.createBlockSize().SIZE();
+
+            KeyHandler.leftPressed = false;
+
+        }
+        if (KeyHandler.rightPressed) {
+
+            block[0].blockX += BlockApp.createBlockSize().SIZE();
+            block[1].blockX += BlockApp.createBlockSize().SIZE();
+            block[2].blockX += BlockApp.createBlockSize().SIZE();
+            block[3].blockX += BlockApp.createBlockSize().SIZE();
+
+            KeyHandler.rightPressed = false;
+        }
+
+        autoDropCounter++;
+        if (autoDropCounter == PlayManager.dropInterval) {
+
+            for (BlockApp b : block) {
+                b.blockY += BlockApp.createBlockSize().SIZE();
+                autoDropCounter = 0;
+            }
+        }
     }
 
     public void draw(Graphics2D g2) {
-
-        g2.setColor(block[0].blockC);
-        g2.fillRect(block[0].blockX, block[0].blockY,
-                BlockApp.createBlockSize().SIZE(), BlockApp.createBlockSize().SIZE());
-        g2.fillRect(block[1].blockX, block[1].blockY,
-                BlockApp.createBlockSize().SIZE(), BlockApp.createBlockSize().SIZE());
-        g2.fillRect(block[2].blockX, block[2].blockY,
-                BlockApp.createBlockSize().SIZE(), BlockApp.createBlockSize().SIZE());
-        g2.fillRect(block[3].blockX, block[3].blockY,
-                BlockApp.createBlockSize().SIZE(), BlockApp.createBlockSize().SIZE());
+        int margin = 2;
+        int blockSize = BlockApp.createBlockSize().SIZE() - (margin * 2);
+        for (BlockApp b : block) {
+            g2.setColor(b.blockC);
+            g2.fillRect(b.blockX + margin, b.blockY + margin, blockSize, blockSize);
+        }
     }
 }
