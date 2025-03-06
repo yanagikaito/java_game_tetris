@@ -17,6 +17,22 @@ public class MinoL1 extends Mino {
     }
 
     @Override
+    public void setXY(int x, int y) {
+
+        // o
+        // o
+        // o o
+        block[0].blockX = x;
+        block[0].blockY = y;
+        block[1].blockX = block[0].blockX;
+        block[1].blockY = block[0].blockY - BlockApp.createBlockSize().SIZE();
+        block[2].blockX = block[0].blockX;
+        block[2].blockY = block[0].blockY + BlockApp.createBlockSize().SIZE();
+        block[3].blockX = block[0].blockX + BlockApp.createBlockSize().SIZE();
+        block[3].blockY = block[0].blockY + BlockApp.createBlockSize().SIZE();
+    }
+
+    @Override
     public void getDirection1() {
 
         // o
@@ -86,21 +102,5 @@ public class MinoL1 extends Mino {
         tempB[3].blockY = block[0].blockY - BlockApp.createBlockSize().SIZE();
 
         updateXY(4);
-    }
-
-    @Override
-    public void setXY(int x, int y) {
-
-        // o
-        // o
-        // o o
-        block[0].blockX = x;
-        block[0].blockY = y;
-        block[1].blockX = block[0].blockX;
-        block[1].blockY = block[0].blockY - BlockApp.createBlockSize().SIZE();
-        block[2].blockX = block[0].blockX;
-        block[2].blockY = block[0].blockY + BlockApp.createBlockSize().SIZE();
-        block[3].blockX = block[0].blockX + BlockApp.createBlockSize().SIZE();
-        block[3].blockY = block[0].blockY + BlockApp.createBlockSize().SIZE();
     }
 }

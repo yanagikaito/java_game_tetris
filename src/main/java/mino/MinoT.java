@@ -1,4 +1,106 @@
 package mino;
 
-public class MinoT {
+import block.Block;
+import block.BlockApp;
+
+import java.awt.*;
+
+public class MinoT extends Mino {
+
+    public MinoT() {
+        init();
+    }
+
+    public void init() {
+        Block block = createBlock(Color.MAGENTA);
+        block.createBlock();
+    }
+
+    @Override
+    public void setXY(int x, int y) {
+
+        //   o
+        // o o o
+        //
+        block[0].blockX = x;
+        block[0].blockY = y;
+        block[1].blockX = block[0].blockX;
+        block[1].blockY = block[0].blockY - BlockApp.createBlockSize().SIZE();
+        block[2].blockX = block[0].blockX - BlockApp.createBlockSize().SIZE();
+        block[2].blockY = block[0].blockY;
+        block[3].blockX = block[0].blockX + BlockApp.createBlockSize().SIZE();
+        block[3].blockY = block[0].blockY;
+    }
+
+    @Override
+    public void getDirection1() {
+
+        //   o
+        // o o o
+        //
+        tempB[0].blockX = block[0].blockX;
+        tempB[0].blockY = block[0].blockY;
+        tempB[1].blockX = block[0].blockX;
+        tempB[1].blockY = block[0].blockY - BlockApp.createBlockSize().SIZE();
+        tempB[2].blockX = block[0].blockX - BlockApp.createBlockSize().SIZE();
+        tempB[2].blockY = block[0].blockY;
+        tempB[3].blockX = block[0].blockX + BlockApp.createBlockSize().SIZE();
+        tempB[3].blockY = block[0].blockY;
+
+        updateXY(1);
+    }
+
+    @Override
+    public void getDirection2() {
+
+        //  o
+        //  o o
+        //  o
+        tempB[0].blockX = block[0].blockX;
+        tempB[0].blockY = block[0].blockY;
+        tempB[1].blockX = block[0].blockX + BlockApp.createBlockSize().SIZE();
+        tempB[1].blockY = block[0].blockY;
+        tempB[2].blockX = block[0].blockX;
+        tempB[2].blockY = block[0].blockY - BlockApp.createBlockSize().SIZE();
+        tempB[3].blockX = block[0].blockX;
+        tempB[3].blockY = block[0].blockY + BlockApp.createBlockSize().SIZE();
+
+        updateXY(2);
+    }
+
+    @Override
+    public void getDirection3() {
+
+        //
+        // o o o
+        //   o
+        tempB[0].blockX = block[0].blockX;
+        tempB[0].blockY = block[0].blockY;
+        tempB[1].blockX = block[0].blockX;
+        tempB[1].blockY = block[0].blockY + BlockApp.createBlockSize().SIZE();
+        tempB[2].blockX = block[0].blockX + BlockApp.createBlockSize().SIZE();
+        tempB[2].blockY = block[0].blockY;
+        tempB[3].blockX = block[0].blockX - BlockApp.createBlockSize().SIZE();
+        tempB[3].blockY = block[0].blockY;
+
+        updateXY(3);
+    }
+
+    @Override
+    public void getDirection4() {
+
+        //   o
+        // o o
+        //   o
+        tempB[0].blockX = block[0].blockX;
+        tempB[0].blockY = block[0].blockY;
+        tempB[1].blockX = block[0].blockX - BlockApp.createBlockSize().SIZE();
+        tempB[1].blockY = block[0].blockY;
+        tempB[2].blockX = block[0].blockX + BlockApp.createBlockSize().SIZE();
+        tempB[2].blockY = block[0].blockY;
+        tempB[3].blockX = block[0].blockX;
+        tempB[3].blockY = block[0].blockY - BlockApp.createBlockSize().SIZE();
+
+        updateXY(4);
+    }
 }

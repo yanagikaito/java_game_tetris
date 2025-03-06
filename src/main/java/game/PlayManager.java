@@ -4,8 +4,11 @@ import block.BlockApp;
 import frame.FrameApp;
 import mino.Mino;
 import mino.MinoL1;
+import mino.MinoL2;
+import mino.MinoT;
 
 import java.awt.*;
+import java.util.Random;
 
 public class PlayManager {
 
@@ -31,8 +34,27 @@ public class PlayManager {
         MINO_START_X = left_x + (WIDTH / 2) - BlockApp.createBlockSize().SIZE();
         MINO_START_Y = top_y + BlockApp.createBlockSize().SIZE();
 
-        currentMino = new MinoL1();
+        currentMino = pickMino();
         currentMino.setXY(MINO_START_X, MINO_START_Y);
+    }
+
+    private Mino pickMino() {
+
+        Mino mino = null;
+        int i = new Random().nextInt(3);
+
+        switch (i) {
+            case 0:
+                mino = new MinoL1();
+                break;
+            case 1:
+                mino = new MinoL2();
+                break;
+            case 2:
+                mino = new MinoT();
+                break;
+        }
+        return mino;
     }
 
     public void update() {

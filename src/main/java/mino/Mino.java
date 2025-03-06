@@ -13,6 +13,9 @@ public abstract class Mino {
     public BlockApp[] tempB = new BlockApp[4];
     public int autoDropCounter = 0;
     public int direction = 1;
+    boolean leftCollision;
+    boolean rightCollision;
+    boolean bottomCollision;
 
     public abstract void getDirection1();
 
@@ -21,6 +24,36 @@ public abstract class Mino {
     public abstract void getDirection3();
 
     public abstract void getDirection4();
+
+    public void checkMovementCollision() {
+
+        leftCollision = false;
+        rightCollision = false;
+        bottomCollision = false;
+
+        // 左の壁
+        for (int i = 0; i < block.length; i++) {
+            if (block[i].blockX == PlayManager.left_x) {
+                leftCollision = true;
+            }
+        }
+
+        // 右の壁
+        for (int i = 0; i < block.length; i++) {
+            if (block[i].blockX + BlockApp.createBlockSize().SIZE() == PlayManager.right_x) {
+                rightCollision = true;
+            }
+        }
+
+        for (int i = 0; i < block.length; i++) {
+            if (block[i].blockY + BlockApp.createBlockSize().SIZE() == PlayManager.bottom_y) {
+                bottomCollision = true;
+            }
+        }
+    }
+
+    public void checkRotationCollision() {
+    }
 
     public Block createBlock(Color c) {
 
@@ -71,34 +104,44 @@ public abstract class Mino {
             }
             KeyHandler.upPressed = false;
         }
+        checkMovementCollision();
+
         if (KeyHandler.downPressed) {
 
-            block[0].blockY += BlockApp.createBlockSize().SIZE();
-            block[1].blockY += BlockApp.createBlockSize().SIZE();
-            block[2].blockY += BlockApp.createBlockSize().SIZE();
-            block[3].blockY += BlockApp.createBlockSize().SIZE();
+            if (!bottomCollision) {
 
-            autoDropCounter = 0;
+                block[0].blockY += BlockApp.createBlockSize().SIZE();
+                block[1].blockY += BlockApp.createBlockSize().SIZE();
+                block[2].blockY += BlockApp.createBlockSize().SIZE();
+                block[3].blockY += BlockApp.createBlockSize().SIZE();
 
+                autoDropCounter = 0;
+            }
             KeyHandler.downPressed = false;
 
         }
         if (KeyHandler.leftPressed) {
 
-            block[0].blockX -= BlockApp.createBlockSize().SIZE();
-            block[1].blockX -= BlockApp.createBlockSize().SIZE();
-            block[2].blockX -= BlockApp.createBlockSize().SIZE();
-            block[3].blockX -= BlockApp.createBlockSize().SIZE();
+            if (!leftCollision) {
+
+                block[0].blockX -= BlockApp.createBlockSize().SIZE();
+                block[1].blockX -= BlockApp.createBlockSize().SIZE();
+                block[2].blockX -= BlockApp.createBlockSize().SIZE();
+                block[3].blockX -= BlockApp.createBlockSize().SIZE();
+            }
 
             KeyHandler.leftPressed = false;
 
         }
         if (KeyHandler.rightPressed) {
 
-            block[0].blockX += BlockApp.createBlockSize().SIZE();
-            block[1].blockX += BlockApp.createBlockSize().SIZE();
-            block[2].blockX += BlockApp.createBlockSize().SIZE();
-            block[3].blockX += BlockApp.createBlockSize().SIZE();
+            if (!rightCollision) {
+
+                block[0].blockX += BlockApp.createBlockSize().SIZE();
+                block[1].blockX += BlockApp.createBlockSize().SIZE();
+                block[2].blockX += BlockApp.createBlockSize().SIZE();
+                block[3].blockX += BlockApp.createBlockSize().SIZE();
+            }
 
             KeyHandler.rightPressed = false;
         }
