@@ -28,6 +28,7 @@ public class PlayManager {
     public PlayManager() {
         left_x = (FrameApp.baseDisplay().width() / 2) - (WIDTH / 2);
         right_x = left_x + WIDTH;
+        System.out.println("right_x = " + right_x);
         top_y = 80;
         bottom_y = top_y + HEIGHT;
 
@@ -72,9 +73,21 @@ public class PlayManager {
         int x = right_x + 80;
         int y = bottom_y - 150;
         g2.drawRect(x, y, 150, 150);
+        g2.setFont(new Font("Arial", Font.PLAIN, 30));
+        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        g2.drawString("NEXT", x + 40, y + 40);
 
         if (currentMino != null) {
             currentMino.draw(g2);
+        }
+
+        // 一時停止
+        g2.setColor(Color.yellow);
+        g2.setFont(g2.getFont().deriveFont(50f));
+        if (KeyHandler.pausePressed) {
+            x = left_x + 70;
+            y = top_y + 320;
+            g2.drawString("PAUSED", x, y);
         }
     }
 }

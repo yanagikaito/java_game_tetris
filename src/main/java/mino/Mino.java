@@ -16,6 +16,7 @@ public abstract class Mino {
     boolean leftCollision;
     boolean rightCollision;
     boolean bottomCollision;
+    public boolean active = true;
 
     public abstract void getDirection1();
 
@@ -41,18 +42,51 @@ public abstract class Mino {
         // 右の壁
         for (int i = 0; i < block.length; i++) {
             if (block[i].blockX + BlockApp.createBlockSize().SIZE() == PlayManager.right_x) {
+                System.out.println("block[i].blockX = " + block[i].blockX);
+                System.out.println("BlockApp.createBlockSize().SIZE() = " + BlockApp.createBlockSize().SIZE());
+                System.out.println("PlayManager.right_x = " + PlayManager.right_x);
                 rightCollision = true;
             }
         }
 
         for (int i = 0; i < block.length; i++) {
-            if (block[i].blockY + BlockApp.createBlockSize().SIZE() == PlayManager.bottom_y) {
+            if (block[i].blockY + BlockApp.createBlockSize().SIZE() > PlayManager.bottom_y) {
                 bottomCollision = true;
+                System.out.println("blockY: " + block[i].blockY);
+                System.out.println("PlayManager.bottom_y: " + PlayManager.bottom_y);
+                System.out.println("bottomCollision: " + bottomCollision);
             }
         }
     }
 
     public void checkRotationCollision() {
+
+        leftCollision = false;
+        rightCollision = false;
+        bottomCollision = false;
+
+        // 左の壁
+        for (int i = 0; i < block.length; i++) {
+            if (tempB[i].blockX < PlayManager.left_x) {
+                leftCollision = true;
+            }
+        }
+
+        // 右の壁
+        for (int i = 0; i < block.length; i++) {
+            if (tempB[i].blockX + BlockApp.createBlockSize().SIZE() > PlayManager.right_x) {
+                System.out.println("tempB[i].blockX = " + block[i].blockX);
+                System.out.println("BlockApp.createBlockSize().SIZE() = " + BlockApp.createBlockSize().SIZE());
+                System.out.println("PlayManager.right_x = " + PlayManager.right_x);
+                rightCollision = true;
+            }
+        }
+
+        for (int i = 0; i < block.length; i++) {
+            if (tempB[i].blockY + BlockApp.createBlockSize().SIZE() > PlayManager.bottom_y) {
+                bottomCollision = true;
+            }
+        }
     }
 
     public Block createBlock(Color c) {
@@ -74,15 +108,21 @@ public abstract class Mino {
 
     public void updateXY(int direction) {
 
-        this.direction = direction;
-        block[0].blockX = tempB[0].blockX;
-        block[0].blockY = tempB[0].blockY;
-        block[1].blockX = tempB[1].blockX;
-        block[1].blockY = tempB[1].blockY;
-        block[2].blockX = tempB[2].blockX;
-        block[2].blockY = tempB[2].blockY;
-        block[3].blockX = tempB[3].blockX;
-        block[3].blockY = tempB[3].blockY;
+        checkRotationCollision();
+
+        // 衝突が発生していない時にブロックを回転できる
+        if (leftCollision == false && rightCollision == false && bottomCollision == false) {
+
+            this.direction = direction;
+            block[0].blockX = tempB[0].blockX;
+            block[0].blockY = tempB[0].blockY;
+            block[1].blockX = tempB[1].blockX;
+            block[1].blockY = tempB[1].blockY;
+            block[2].blockX = tempB[2].blockX;
+            block[2].blockY = tempB[2].blockY;
+            block[3].blockX = tempB[3].blockX;
+            block[3].blockY = tempB[3].blockY;
+        }
     }
 
     public void update() {
@@ -146,11 +186,16 @@ public abstract class Mino {
             KeyHandler.rightPressed = false;
         }
 
-        autoDropCounter++;
-        if (autoDropCounter == PlayManager.dropInterval) {
+        if (bottomCollision) {
+            active = false;
+        } else {
+            autoDropCounter++;
+            if (autoDropCounter == PlayManager.dropInterval) {
 
-            for (BlockApp b : block) {
-                b.blockY += BlockApp.createBlockSize().SIZE();
+                block[0].blockY += BlockApp.createBlockSize().SIZE();
+                block[1].blockY += BlockApp.createBlockSize().SIZE();
+                block[2].blockY += BlockApp.createBlockSize().SIZE();
+                block[3].blockY += BlockApp.createBlockSize().SIZE();
                 autoDropCounter = 0;
             }
         }

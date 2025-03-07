@@ -71,7 +71,9 @@ public class GameWindow extends JPanel implements Window, Runnable {
 
     public void update() {
 
-        playManager.update();
+        if (KeyHandler.pausePressed == false) {
+            playManager.update();
+        }
     }
 
     public void paintComponent(Graphics g) {
