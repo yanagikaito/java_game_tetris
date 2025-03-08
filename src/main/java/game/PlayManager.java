@@ -26,6 +26,7 @@ public class PlayManager {
     public static int dropInterval = 60;
 
     public PlayManager() {
+
         left_x = (FrameApp.baseDisplay().width() / 2) - (WIDTH / 2);
         right_x = left_x + WIDTH;
         System.out.println("right_x = " + right_x);
