@@ -189,10 +189,14 @@ public abstract class Mino {
         }
 
         if (bottomCollision) {
+            
             System.out.println("bottomCollision = " + bottomCollision);
             active = false;
+
         } else {
+
             autoDropCounter++;
+
             if (autoDropCounter == PlayManager.dropInterval) {
 
                 block[0].blockY += BlockApp.createBlockSize().SIZE();

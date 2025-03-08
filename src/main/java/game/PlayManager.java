@@ -26,6 +26,7 @@ public class PlayManager {
     public static int dropInterval = 60;
 
     public PlayManager() {
+
         left_x = (FrameApp.baseDisplay().width() / 2) - (WIDTH / 2);
         right_x = left_x + WIDTH;
         System.out.println("right_x = " + right_x);
@@ -67,11 +68,11 @@ public class PlayManager {
 
         g2.setColor(Color.WHITE);
         g2.setStroke(new BasicStroke(4f));
-        g2.drawRect(left_x, top_y, WIDTH, HEIGHT);
+        g2.drawRect(left_x, top_y, WIDTH, HEIGHT - 8);
 
         // 次のテトリスのブロックが表示される枠
         int x = right_x + 80;
-        int y = bottom_y - 150;
+        int y = bottom_y - 158;
         g2.drawRect(x, y, 150, 150);
         g2.setFont(new Font("Arial", Font.PLAIN, 30));
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
