@@ -189,7 +189,7 @@ public abstract class Mino {
         }
 
         if (bottomCollision) {
-            
+
             System.out.println("bottomCollision = " + bottomCollision);
             active = false;
 
