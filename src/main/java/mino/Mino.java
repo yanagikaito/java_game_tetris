@@ -32,6 +32,8 @@ public abstract class Mino {
         rightCollision = false;
         bottomCollision = false;
 
+        checkStaticBlockCollision();
+
         // 左の壁
         for (int i = 0; i < block.length; i++) {
             if (block[i].blockX == PlayManager.left_x) {
@@ -52,7 +54,6 @@ public abstract class Mino {
         for (int i = 0; i < block.length; i++) {
             if (block[i].blockY + BlockApp.createBlockSize().SIZE() + 10 == PlayManager.bottom_y) {
                 bottomCollision = true;
-                autoDropCounter = 0;
                 System.out.println("blockY: " + block[i].blockY);
                 System.out.println("PlayManager.bottom_y: " + PlayManager.bottom_y);
                 System.out.println("bottomCollision: " + bottomCollision);
@@ -65,6 +66,8 @@ public abstract class Mino {
         leftCollision = false;
         rightCollision = false;
         bottomCollision = false;
+
+        checkStaticBlockCollision();
 
         // 左の壁
         for (int i = 0; i < block.length; i++) {
@@ -86,7 +89,40 @@ public abstract class Mino {
         for (int i = 0; i < block.length; i++) {
             if (tempB[i].blockY + BlockApp.createBlockSize().SIZE() > PlayManager.bottom_y) {
                 bottomCollision = true;
-                autoDropCounter = 0;
+            }
+        }
+    }
+
+    private void checkStaticBlockCollision() {
+
+        // staticBlocksの衝突チェック
+        for (int i = 0; i < PlayManager.staticBlocks.size(); i++) {
+
+            int targetX = PlayManager.staticBlocks.get(i).blockX;
+            int targetY = PlayManager.staticBlocks.get(i).blockY;
+
+            // 下
+            for (int ii = 0; ii < block.length; ii++) {
+                if (block[ii].blockY + BlockApp.createBlockSize().SIZE()
+                        == targetY && block[ii].blockX == targetX) {
+                    bottomCollision = true;
+                }
+            }
+
+            // 左
+            for (int ii = 0; ii < block.length; ii++) {
+                if (block[ii].blockX - BlockApp.createBlockSize().SIZE()
+                        == targetX && block[ii].blockY == targetY) {
+                    leftCollision = true;
+                }
+            }
+
+            // 右
+            for (int ii = 0; ii < block.length; ii++) {
+                if (block[ii].blockX + BlockApp.createBlockSize().SIZE()
+                        == targetX && block[ii].blockY == targetY) {
+                    rightCollision = true;
+                }
             }
         }
     }

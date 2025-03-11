@@ -17,7 +17,9 @@ public class BlockApp {
     }
 
     public void draw(Graphics2D g2) {
+        int margine = 2;
         g2.setColor(blockC);
-        g2.fillRect(blockX, blockY, createBlockSize().SIZE(), createBlockSize().SIZE());
+        g2.fillRect(blockX + margine, blockY + margine,
+                createBlockSize().SIZE() - (margine * 2), createBlockSize().SIZE() - (margine * 2));
     }
 }
