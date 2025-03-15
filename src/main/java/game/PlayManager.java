@@ -11,7 +11,7 @@ import java.util.Random;
 public class PlayManager {
 
     public final int WIDTH = 360;
-    public final int HEIGHT = 700;
+    public final int HEIGHT = 660;
     public static int left_x;
     public static int right_x;
     public static int top_y;
@@ -54,35 +54,22 @@ public class PlayManager {
         Mino mino = null;
         int i = new Random().nextInt(7);
 
-        switch (i) {
-            case 0:
-                mino = new MinoL1();
-                break;
-            case 1:
-                mino = new MinoL2();
-                break;
-            case 2:
-                mino = new MinoT();
-                break;
-            case 3:
-                mino = new MinoBar();
-                break;
-            case 4:
-                mino = new MinoSquare();
-                break;
-            case 5:
-                mino = new MinoZ1();
-                break;
-            case 6:
-                mino = new MinoZ2();
-                break;
-        }
+        mino = switch (i) {
+            case 0 -> new MinoL1();
+            case 1 -> new MinoL2();
+            case 2 -> new MinoT();
+            case 3 -> new MinoBar();
+            case 4 -> new MinoSquare();
+            case 5 -> new MinoZ1();
+            case 6 -> new MinoZ2();
+            default -> mino;
+        };
         return mino;
     }
 
     public void update() {
 
-        if (currentMino.active == false) {
+        if (!currentMino.active) {
 
             staticBlocks.add(currentMino.block[0]);
             staticBlocks.add(currentMino.block[1]);
@@ -103,11 +90,26 @@ public class PlayManager {
 
         g2.setColor(Color.WHITE);
         g2.setStroke(new BasicStroke(4f));
-        g2.drawRect(left_x, top_y, WIDTH, HEIGHT - 8);
+        g2.drawRect(left_x, top_y, WIDTH, HEIGHT);
+
+        // 網目模様の描画
+        g2.setColor(Color.GRAY);
+        int blockSize = BlockApp.createBlockSize().SIZE();
+
+        // 横線を描画
+        for (int y = top_y; y <= bottom_y; y += blockSize) {
+            g2.drawLine(left_x, y, right_x, y);
+        }
+
+        // 縦線を描画
+        for (int x = left_x; x <= right_x; x += blockSize) {
+            g2.drawLine(x, top_y, x, bottom_y);
+        }
+
 
         // 次のテトリスのブロックが表示される枠
         int x = right_x + 80;
-        int y = bottom_y - 158;
+        int y = bottom_y - 120;
         g2.drawRect(x, y, 150, 150);
         g2.setFont(new Font("Arial", Font.PLAIN, 30));
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);

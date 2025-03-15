@@ -52,7 +52,7 @@ public abstract class Mino {
         }
 
         for (int i = 0; i < block.length; i++) {
-            if (block[i].blockY + BlockApp.createBlockSize().SIZE() + 10 == PlayManager.bottom_y) {
+            if (block[i].blockY + BlockApp.createBlockSize().SIZE() == PlayManager.bottom_y) {
                 bottomCollision = true;
                 System.out.println("blockY: " + block[i].blockY);
                 System.out.println("PlayManager.bottom_y: " + PlayManager.bottom_y);
