@@ -17,6 +17,8 @@ public abstract class Mino {
     boolean rightCollision;
     boolean bottomCollision;
     public boolean active = true;
+    public boolean deactivating;
+    public int deactivateCounter = 0;
 
     public abstract void getDirection1();
 
@@ -165,6 +167,10 @@ public abstract class Mino {
 
     public void update() {
 
+        if (deactivating) {
+            deactivating();
+        }
+
         if (KeyHandler.upPressed) {
             switch (direction) {
                 case 1:
@@ -227,7 +233,7 @@ public abstract class Mino {
         if (bottomCollision) {
 
             System.out.println("bottomCollision = " + bottomCollision);
-            active = false;
+            deactivating = true;
 
         } else {
 
@@ -240,6 +246,21 @@ public abstract class Mino {
                 block[2].blockY += BlockApp.createBlockSize().SIZE();
                 block[3].blockY += BlockApp.createBlockSize().SIZE();
                 autoDropCounter = 0;
+            }
+        }
+    }
+
+    private void deactivating() {
+
+        deactivateCounter++;
+
+        if (deactivateCounter == 45) {
+
+            deactivateCounter = 0;
+            checkMovementCollision();
+
+            if (bottomCollision) {
+                active = false;
             }
         }
     }
