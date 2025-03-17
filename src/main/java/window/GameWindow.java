@@ -13,18 +13,26 @@ import static frame.FrameApp.baseDisplay;
 
 public class GameWindow extends JPanel implements Window, Runnable {
 
-    private GameFrame gameFrame = FrameFactory.createFrame(baseDisplay());
+    private GameFrame gameFrame = FrameFactory.createFrame(baseDisplay(), this);
+    private static GameWindow instance;
     private PlayManager playManager = new PlayManager();
     private KeyHandler keyHandler = new KeyHandler();
     private Thread gameThread;
 
-    public GameWindow() {
+    private GameWindow() {
         this.setBackground(Color.BLACK);
         this.setDoubleBuffered(true);
         this.setFocusable(true);
         this.startThread();
         this.addKeyListener(keyHandler);
         this.setFocusable(true);
+    }
+
+    public static synchronized GameWindow getInstance() {
+        if (instance == null) {
+            instance = new GameWindow();
+        }
+        return instance;
     }
 
     @Override

@@ -7,9 +7,7 @@ import window.GameWindow;
 import javax.swing.*;
 
 public class FrameFactory {
-    static GameWindow gameWindow = new GameWindow();
-
-    public static GameFrame createFrame(FrameSize size) {
+    public static GameFrame createFrame(FrameSize size, GameWindow gameWindow) {
         return () -> {
             JFrame frame = new JFrame();
             frame.setResizable(false);
