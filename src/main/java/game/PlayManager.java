@@ -5,8 +5,8 @@ import frame.FrameApp;
 import mino.*;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Random;
+import java.util.*;
+import java.util.List;
 
 public class PlayManager {
 
@@ -24,7 +24,10 @@ public class PlayManager {
     Mino nextMino;
     final int NEXT_MINO_X;
     final int NEXT_MINO_Y;
+    private final Random RANDOM = new Random(12345);
+    private boolean firstBatchGenerated = false;
     public static ArrayList<BlockApp> staticBlocks = new ArrayList<>();
+    private final Queue<Class<? extends Mino>> minoQueue = new LinkedList<>();
 
     public static int dropInterval = 60;
 
@@ -50,21 +53,38 @@ public class PlayManager {
     }
 
     private Mino pickMino() {
-
-        Mino mino = null;
-        int i = new Random().nextInt(7);
-
-        mino = switch (i) {
-            case 0 -> new MinoL1();
-            case 1 -> new MinoL2();
-            case 2 -> new MinoT();
-            case 3 -> new MinoBar();
-            case 4 -> new MinoSquare();
-            case 5 -> new MinoZ1();
-            case 6 -> new MinoZ2();
-            default -> mino;
-        };
-        return mino;
+        
+        if (minoQueue.isEmpty()) {
+            // 最初の一回のみ指定された順序でミノを追加
+            if (!firstBatchGenerated) {
+                // 指定された順序でミノをリストに追加
+                List<Class<? extends Mino>> firstMinoTypes = Arrays.asList(
+                        MinoL1.class, MinoL2.class,
+                        MinoT.class, MinoBar.class,
+                        MinoSquare.class, MinoZ1.class,
+                        MinoZ2.class
+                );
+                minoQueue.addAll(firstMinoTypes);
+                // 一度だけ実行されるようにフラグをセット
+                firstBatchGenerated = true;
+            } else {
+                // 以降はランダムな順序
+                List<Class<? extends Mino>> minoTypes = Arrays.asList(
+                        MinoL1.class, MinoL2.class,
+                        MinoT.class, MinoBar.class,
+                        MinoSquare.class, MinoZ1.class,
+                        MinoZ2.class
+                );
+                Collections.shuffle(minoTypes, RANDOM);
+                minoQueue.addAll(minoTypes);
+            }
+        }
+        try {
+            return minoQueue.poll().getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public void update() {
