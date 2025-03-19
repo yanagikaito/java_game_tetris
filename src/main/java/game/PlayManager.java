@@ -3,9 +3,9 @@ package game;
 import block.BlockApp;
 import frame.FrameApp;
 import mino.*;
+import window.GameWindow;
 
 import java.awt.*;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.List;
 
@@ -37,8 +37,11 @@ public class PlayManager {
 
     public static int dropInterval = 60;
 
-    public PlayManager() {
+    private GameWindow gameWindow;
 
+    public PlayManager(GameWindow gameWindow) {
+
+        this.gameWindow = gameWindow;
         initializeBoard();
 
         MINO_START_X = left_x + (WIDTH / 2) - BlockApp.createBlockSize().SIZE();
@@ -73,16 +76,13 @@ public class PlayManager {
             minoQueue.addAll(minoTypes);
         }
         try {
-            return Optional.ofNullable(minoQueue.poll())
-                    .map(minoClass -> {
-                        try {
-                            return minoClass.getDeclaredConstructor().newInstance();
-                        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-                                 NoSuchMethodException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
-                    .orElseThrow(() -> new IllegalStateException("Minoクラスをインスタンス化できませんでした。"));
+            // 次のミノの取得
+            Class<? extends Mino> minoClass = minoQueue.poll();
+
+            // 次のミノのデバッグ情報を更新
+            gameWindow.updateDebugText("次のミノ: " + minoClass.getSimpleName());
+
+            return minoClass.getDeclaredConstructor().newInstance(); // ミノのインスタンスを生成
         } catch (Exception e) {
             throw new RuntimeException("Mino作成中にエラーが発生しました。", e);
         }

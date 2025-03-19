@@ -15,9 +15,11 @@ public class GameWindow extends JPanel implements Window, Runnable {
 
     private GameFrame gameFrame = FrameFactory.createFrame(baseDisplay(), this);
     private static GameWindow instance;
-    private PlayManager playManager = new PlayManager();
+    private PlayManager playManager = new PlayManager(this);
     private KeyHandler keyHandler = new KeyHandler();
     private Thread gameThread;
+
+    private JLabel debugLabel;
 
     private GameWindow() {
         this.setBackground(Color.BLACK);
@@ -26,6 +28,24 @@ public class GameWindow extends JPanel implements Window, Runnable {
         this.startThread();
         this.addKeyListener(keyHandler);
         this.setFocusable(true);
+        this.setLayout(null);
+
+        // デバッグ用ラベルの初期化
+        debugLabel = new JLabel("デバッグ情報: ");
+        // ラベルの位置とサイズを調整
+        debugLabel.setBounds(10, 10, 400, 20);
+        // テキストカラーを設定
+        debugLabel.setForeground(Color.WHITE);
+        // パネルにラベルを追加
+        this.add(debugLabel);
+    }
+
+    // デバッグ情報を既存ラベルに更新するメソッド
+    public void updateDebugText(String debugText) {
+        if (debugLabel != null) {
+            // 既存のラベルのテキストを更新
+            debugLabel.setText(debugText);
+        }
     }
 
     public static synchronized GameWindow getInstance() {
