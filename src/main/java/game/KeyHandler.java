@@ -10,6 +10,7 @@ public class KeyHandler implements KeyListener {
     public static boolean leftPressed;
     public static boolean rightPressed;
     public static boolean pausePressed;
+    public static boolean checkDrawTime = false;
 
     @Override
     public void keyTyped(KeyEvent e) {
@@ -38,6 +39,15 @@ public class KeyHandler implements KeyListener {
                 pausePressed = false;
             } else {
                 pausePressed = true;
+            }
+        }
+
+        // デバッグ
+        if (code == KeyEvent.VK_T) {
+            if (checkDrawTime == false) {
+                checkDrawTime = true;
+            } else if (checkDrawTime == true) {
+                checkDrawTime = false;
             }
         }
     }

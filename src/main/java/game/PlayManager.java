@@ -37,11 +37,8 @@ public class PlayManager {
 
     public static int dropInterval = 60;
 
-    private GameWindow gameWindow;
+    public PlayManager() {
 
-    public PlayManager(GameWindow gameWindow) {
-
-        this.gameWindow = gameWindow;
         initializeBoard();
 
         MINO_START_X = left_x + (WIDTH / 2) - BlockApp.createBlockSize().SIZE();
@@ -64,7 +61,7 @@ public class PlayManager {
         bottom_y = top_y + HEIGHT;
     }
 
-    private Mino pickMino() {
+    public Mino pickMino() {
         if (minoQueue.isEmpty()) {
             List<Class<? extends Mino>> minoTypes = Arrays.asList(
                     MinoL1.class, MinoL2.class,
@@ -80,7 +77,7 @@ public class PlayManager {
             Class<? extends Mino> minoClass = minoQueue.poll();
 
             // 次のミノのデバッグ情報を更新
-            gameWindow.updateDebugText("次のミノ: " + minoClass.getSimpleName());
+            System.out.println("次のミノ: " + minoClass.getSimpleName());
 
             return minoClass.getDeclaredConstructor().newInstance(); // ミノのインスタンスを生成
         } catch (Exception e) {
