@@ -3,7 +3,6 @@ package game;
 import block.BlockApp;
 import frame.FrameApp;
 import mino.*;
-import window.GameWindow;
 
 import java.awt.*;
 import java.util.*;
@@ -34,6 +33,7 @@ public class PlayManager {
     private static final Random RANDOM = new Random();
     public static final List<BlockApp> staticBlocks = new ArrayList<>();
     private final Queue<Class<? extends Mino>> minoQueue = new LinkedList<>();
+    private final List<GlowEffect> glowEffects = new ArrayList<>();
 
     public static int dropInterval = 60;
 
@@ -64,10 +64,10 @@ public class PlayManager {
     public Mino pickMino() {
         if (minoQueue.isEmpty()) {
             List<Class<? extends Mino>> minoTypes = Arrays.asList(
-                    MinoL1.class, MinoL2.class,
-                    MinoT.class, MinoBar.class,
-                    MinoSquare.class, MinoZ1.class,
-                    MinoZ2.class
+                    MinoL.class, MinoJ.class,
+                    MinoT.class, MinoI.class,
+                    MinoO.class, MinoZ.class,
+                    MinoS.class
             );
             Collections.shuffle(minoTypes, RANDOM);
             minoQueue.addAll(minoTypes);
@@ -124,7 +124,20 @@ public class PlayManager {
     }
 
     private void deleteRow(int y, int blockSize) {
+        // 光るエフェクトを追加
+        triggerGlowEffect(y);
+
+        // 実際のブロック削除
         staticBlocks.removeIf(block -> block.blockY == y);
+    }
+
+    private void triggerGlowEffect(int y) {
+        int blockSize = BlockApp.createBlockSize().SIZE();
+        for (BlockApp block : staticBlocks) {
+            if (block.blockY == y) {
+                glowEffects.add(new GlowEffect(block.blockX, block.blockY, blockSize));
+            }
+        }
     }
 
     private void shiftBlocksDown(int y, int blockSize) {
@@ -140,6 +153,22 @@ public class PlayManager {
         nextMino.draw(g2);
         staticBlocks.forEach(block -> block.draw(g2));
         drawPauseScreen(g2);
+
+        // 光るエフェクトを描画
+        for (Iterator<GlowEffect> iterator = glowEffects.iterator(); iterator.hasNext(); ) {
+            GlowEffect effect = iterator.next();
+
+            // 光るエフェクトの描画
+            g2.setColor(new Color(255, 255, 0, effect.alpha)); // 黄色の光
+            g2.fillRect(effect.x, effect.y, effect.size, effect.size);
+
+            // エフェクトの更新
+            effect.update();
+            if (effect.isExpired()) {
+                // 寿命が尽きたエフェクトを削除
+                iterator.remove();
+            }
+        }
     }
 
     private void drawGameBoard(Graphics2D g2) {

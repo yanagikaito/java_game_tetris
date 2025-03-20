@@ -5,9 +5,9 @@ import block.BlockApp;
 
 import java.awt.*;
 
-public class MinoSquare extends Mino {
+public class MinoO extends Mino {
 
-    public MinoSquare() {
+    public MinoO() {
         init();
     }
 
