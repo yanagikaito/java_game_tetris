@@ -46,9 +46,6 @@ public abstract class Mino {
         // 右の壁
         for (int i = 0; i < block.length; i++) {
             if (block[i].blockX + BlockApp.createBlockSize().SIZE() == PlayManager.right_x) {
-                System.out.println("block[i].blockX = " + block[i].blockX);
-                System.out.println("BlockApp.createBlockSize().SIZE() = " + BlockApp.createBlockSize().SIZE());
-                System.out.println("PlayManager.right_x = " + PlayManager.right_x);
                 rightCollision = true;
             }
         }
@@ -56,9 +53,6 @@ public abstract class Mino {
         for (int i = 0; i < block.length; i++) {
             if (block[i].blockY + BlockApp.createBlockSize().SIZE() == PlayManager.bottom_y) {
                 bottomCollision = true;
-                System.out.println("blockY: " + block[i].blockY);
-                System.out.println("PlayManager.bottom_y: " + PlayManager.bottom_y);
-                System.out.println("bottomCollision: " + bottomCollision);
             }
         }
     }
@@ -81,9 +75,6 @@ public abstract class Mino {
         // 右の壁
         for (int i = 0; i < block.length; i++) {
             if (tempB[i].blockX + BlockApp.createBlockSize().SIZE() > PlayManager.right_x) {
-                System.out.println("tempB[i].blockX = " + block[i].blockX);
-                System.out.println("BlockApp.createBlockSize().SIZE() = " + BlockApp.createBlockSize().SIZE());
-                System.out.println("PlayManager.right_x = " + PlayManager.right_x);
                 rightCollision = true;
             }
         }
@@ -231,8 +222,6 @@ public abstract class Mino {
         }
 
         if (bottomCollision) {
-
-            System.out.println("bottomCollision = " + bottomCollision);
             deactivating = true;
 
         } else {

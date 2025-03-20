@@ -15,7 +15,7 @@ public class GameWindow extends JPanel implements Window, Runnable {
 
     private GameFrame gameFrame = FrameFactory.createFrame(baseDisplay(), this);
     private static GameWindow instance;
-    private PlayManager playManager = new PlayManager(this);
+    private PlayManager playManager = new PlayManager();
     private KeyHandler keyHandler = new KeyHandler();
     private Thread gameThread;
 
@@ -31,7 +31,7 @@ public class GameWindow extends JPanel implements Window, Runnable {
         this.setLayout(null);
 
         // デバッグ用ラベルの初期化
-        debugLabel = new JLabel("デバッグ情報: ");
+        debugLabel = new JLabel();
         // ラベルの位置とサイズを調整
         debugLabel.setBounds(10, 10, 400, 20);
         // テキストカラーを設定
@@ -80,7 +80,11 @@ public class GameWindow extends JPanel implements Window, Runnable {
             }
 
             if (timer >= nanosecond) {
-                System.out.println("FPS:" + drawCount);
+                // Tキーが押されている場合にのみFPSを表示
+                if (KeyHandler.checkDrawTime) {
+                    String fpsText = "FPS: " + drawCount;
+                    updateDebugText(fpsText);
+                }
                 drawCount = 0;
                 timer = 0;
             }
@@ -106,8 +110,21 @@ public class GameWindow extends JPanel implements Window, Runnable {
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-
         Graphics2D g2 = (Graphics2D) g;
+
+        // デバッグ
+        long drawStart = 0;
+        if (KeyHandler.checkDrawTime == true) {
+            drawStart = System.nanoTime();
+        }
+
+        if (KeyHandler.checkDrawTime == true) {
+            long drawEnd = System.nanoTime();
+            long passed = drawEnd - drawStart;
+            g2.setColor(Color.WHITE);
+            g2.drawString("描画時間: " + passed, 10, 10);
+        }
+
         playManager.draw(g2);
     }
 }
