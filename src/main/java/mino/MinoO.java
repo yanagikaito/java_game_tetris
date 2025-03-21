@@ -19,8 +19,8 @@ public class MinoO extends Mino {
     @Override
     public void setXY(int x, int y) {
 
-        // o o 0,1
-        // o o 2,3
+        // o o 0,2
+        // o o 1,3
         //
         block[0].blockX = x;
         block[0].blockY = y;

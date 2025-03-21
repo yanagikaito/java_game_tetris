@@ -19,42 +19,24 @@ public class MinoS extends Mino {
     @Override
     public void setXY(int x, int y) {
 
-        //  o    0
-        //  o o  1,2
-        //    o    3
+        //    o o   2,3
+        //  o o   1,0
+        //
         block[0].blockX = x;
         block[0].blockY = y;
-        block[1].blockX = block[0].blockX;
-        block[1].blockY = block[0].blockY - BlockApp.createBlockSize().SIZE();
-        block[2].blockX = block[0].blockX + BlockApp.createBlockSize().SIZE();
-        block[2].blockY = block[0].blockY;
+        block[1].blockX = block[0].blockX - BlockApp.createBlockSize().SIZE();
+        block[1].blockY = block[0].blockY;
+        block[2].blockX = block[0].blockX;
+        block[2].blockY = block[0].blockY - BlockApp.createBlockSize().SIZE();
         block[3].blockX = block[0].blockX + BlockApp.createBlockSize().SIZE();
-        block[3].blockY = block[0].blockY + BlockApp.createBlockSize().SIZE();
+        block[3].blockY = block[0].blockY - BlockApp.createBlockSize().SIZE();
     }
 
     @Override
     public void getDirection1() {
 
-        //  o    0
-        //  o o  1,2
-        //    o    3
-        tempB[0].blockX = block[0].blockX;
-        tempB[0].blockY = block[0].blockY;
-        tempB[1].blockX = block[0].blockX;
-        tempB[1].blockY = block[0].blockY - BlockApp.createBlockSize().SIZE();
-        tempB[2].blockX = block[0].blockX + BlockApp.createBlockSize().SIZE();
-        tempB[2].blockY = block[0].blockY;
-        tempB[3].blockX = block[0].blockX + BlockApp.createBlockSize().SIZE();
-        tempB[3].blockY = block[0].blockY + BlockApp.createBlockSize().SIZE();
-
-        updateXY(1);
-    }
-
-    @Override
-    public void getDirection2() {
-
-        //    o o   1,0
-        //  o o   3,2
+        //    o o   2,3
+        //  o o   1,0
         //
         tempB[0].blockX = block[0].blockX;
         tempB[0].blockY = block[0].blockY;
@@ -64,6 +46,24 @@ public class MinoS extends Mino {
         tempB[2].blockY = block[0].blockY - BlockApp.createBlockSize().SIZE();
         tempB[3].blockX = block[0].blockX + BlockApp.createBlockSize().SIZE();
         tempB[3].blockY = block[0].blockY - BlockApp.createBlockSize().SIZE();
+
+        updateXY(1);
+    }
+
+    @Override
+    public void getDirection2() {
+
+        //  o    1
+        //  o o  0,2
+        //    o    3
+        tempB[0].blockX = block[0].blockX;
+        tempB[0].blockY = block[0].blockY;
+        tempB[1].blockX = block[0].blockX;
+        tempB[1].blockY = block[0].blockY - BlockApp.createBlockSize().SIZE();
+        tempB[2].blockX = block[0].blockX + BlockApp.createBlockSize().SIZE();
+        tempB[2].blockY = block[0].blockY;
+        tempB[3].blockX = block[0].blockX + BlockApp.createBlockSize().SIZE();
+        tempB[3].blockY = block[0].blockY + BlockApp.createBlockSize().SIZE();
 
         updateXY(2);
     }

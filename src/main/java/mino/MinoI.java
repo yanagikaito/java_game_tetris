@@ -20,7 +20,7 @@ public class MinoI extends Mino {
     public void setXY(int x, int y) {
 
         //
-        // o o o o 0,1,2,3
+        // o o o o 1,0,2,3
         //
         block[0].blockX = x;
         block[0].blockY = y;
@@ -36,7 +36,7 @@ public class MinoI extends Mino {
     public void getDirection1() {
 
         //
-        // o o o o 0,1,2,3
+        // o o o o 1,0,2,3
         //
         tempB[0].blockX = block[0].blockX;
         tempB[0].blockY = block[0].blockY;
@@ -53,8 +53,8 @@ public class MinoI extends Mino {
     @Override
     public void getDirection2() {
 
-        //  o 0
         //  o 1
+        //  o 0
         //  o 2
         //  o 3
         tempB[0].blockX = block[0].blockX;
