@@ -34,12 +34,19 @@ public class PlayManager {
     public static final List<BlockApp> staticBlocks = new ArrayList<>();
     private final Queue<Class<? extends Mino>> minoQueue = new LinkedList<>();
     private final List<GlowEffect> glowEffects = new ArrayList<>();
+    private boolean isGameOver = false;
 
     public static int dropInterval = 60;
 
     public PlayManager() {
 
-        initializeBoard();
+        try {
+            initializeBoard();
+            System.out.println("PlayManagerコンストラクタでinitializeBoard()が呼び出されました");
+        } catch (Exception e) {
+            // 例外を確認
+            e.printStackTrace();
+        }
 
         MINO_START_X = left_x + (WIDTH / 2) - BlockApp.createBlockSize().SIZE();
         MINO_START_Y = top_y + BlockApp.createBlockSize().SIZE();
@@ -59,6 +66,9 @@ public class PlayManager {
         right_x = left_x + WIDTH;
         top_y = 80;
         bottom_y = top_y + HEIGHT;
+
+        // デバッグ: top_yの値をログ出力
+        System.out.println("initializeBoard()内でのtop_yの値: " + top_y);
     }
 
     public Mino pickMino() {
@@ -85,12 +95,33 @@ public class PlayManager {
         }
     }
 
+    private boolean isCollision(BlockApp[] blocks) {
+        for (BlockApp block : blocks) {
+            for (BlockApp staticBlock : staticBlocks) {
+                if (block.blockX == staticBlock.blockX && block.blockY == staticBlock.blockY) {
+                    // 衝突が検出された
+                    return true;
+                }
+            }
+        }
+        return false; // 衝突なし
+    }
+
     public void update() {
+        if (isGameOver) {
+            // ゲームオーバー時はすべての処理を停止
+            return;
+        }
+
         if (!currentMino.active) {
+            // 静止ブロックに追加
             addCurrentMinoToStaticBlocks();
+            // 次のミノを生成
             activateNextMino();
+            // 行の削除チェック
             checkDeleteRows();
         } else {
+            // ミノを更新
             currentMino.update();
         }
     }
@@ -101,13 +132,29 @@ public class PlayManager {
     }
 
     private void activateNextMino() {
+
+        // 次のミノを現在のミノに切り替え
         currentMino = nextMino;
         currentMino.setXY(MINO_START_X, MINO_START_Y);
+
+        // 天井での衝突をチェック
+        if (isCollision(currentMino.block)) {
+            System.out.println("ゲームオーバー判定: 天井でミノが衝突");
+            isGameOver = true;
+            return;
+        }
+
+        // 次のミノを生成
         nextMino = pickMino();
         nextMino.setXY(NEXT_MINO_X, NEXT_MINO_Y);
     }
 
     private void checkDeleteRows() {
+        if (isGameOver) {
+            // ゲームオーバー時は行削除をスキップ
+            return;
+        }
+
         int blockSize = BlockApp.createBlockSize().SIZE();
         for (int y = top_y; y < bottom_y; y += blockSize) {
             if (isRowComplete(y)) {
@@ -124,6 +171,11 @@ public class PlayManager {
     }
 
     private void deleteRow(int y, int blockSize) {
+        if (y <= top_y) {
+            // 天井の行は削除しない
+            return;
+        }
+
         // 光るエフェクトを追加
         triggerGlowEffect(y);
 
@@ -147,12 +199,17 @@ public class PlayManager {
     }
 
     public void draw(Graphics2D g2) {
+
         drawGameBoard(g2);
         drawNextMinoFrame(g2);
         currentMino.draw(g2);
         nextMino.draw(g2);
         staticBlocks.forEach(block -> block.draw(g2));
         drawPauseScreen(g2);
+        drawGameBoard(g2);
+
+        // ゲームオーバーの描画を追加（最後に描画）
+        drawGameOverScreen(g2);
 
         // 光るエフェクトを描画
         for (Iterator<GlowEffect> iterator = glowEffects.iterator(); iterator.hasNext(); ) {
@@ -202,6 +259,16 @@ public class PlayManager {
             int x = left_x + 70;
             int y = top_y + 320;
             g2.drawString("PAUSED", x, y);
+        }
+    }
+
+    private void drawGameOverScreen(Graphics2D g2) {
+        g2.setColor(Color.YELLOW);
+        g2.setFont(g2.getFont().deriveFont(50f));
+        if (isGameOver) {
+            int x = left_x + 25;
+            int y = top_y + 320;
+            g2.drawString("GAME OVER", x, y);
         }
     }
 }
