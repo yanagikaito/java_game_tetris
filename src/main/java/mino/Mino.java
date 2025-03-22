@@ -11,6 +11,8 @@ public abstract class Mino {
 
     public BlockApp[] block = new BlockApp[4];
     public BlockApp[] tempB = new BlockApp[4];
+    public BlockApp[] ghostBlock = new BlockApp[4];
+    public PlayManager playManager;
     public int autoDropCounter = 0;
     public int direction = 1;
     boolean leftCollision;
@@ -27,6 +29,14 @@ public abstract class Mino {
     public abstract void getDirection3();
 
     public abstract void getDirection4();
+
+    public Mino(PlayManager playManager) {
+        this.playManager = playManager;
+        // 必要な初期化処理をここに書く
+        for (int i = 0; i < ghostBlock.length; i++) {
+            ghostBlock[i] = new BlockApp(Color.GRAY); // 仮の色で初期化
+        }
+    }
 
     public void checkMovementCollision() {
 
@@ -158,6 +168,11 @@ public abstract class Mino {
 
     public void update() {
 
+        if (!deactivating && active) {
+            // ゴーストミノの更新
+            updateGhost();
+        }
+
         if (deactivating) {
             deactivating();
         }
@@ -239,6 +254,84 @@ public abstract class Mino {
         }
     }
 
+    public void updateGhost() {
+        // ゴーストミノを現在のミノと同じ座標にコピー
+        for (int i = 0; i < block.length; i++) {
+            ghostBlock[i] = new BlockApp(block[i].blockC);
+            ghostBlock[i].blockX = block[i].blockX;
+            ghostBlock[i].blockY = block[i].blockY;
+        }
+
+        // ゴーストミノをフィールド内で下げる処理を開始
+        boolean collisionDetected = false;
+        while (!collisionDetected) {
+            for (int i = 0; i < ghostBlock.length; i++) {
+                // ゴーストがNEXT欄の領域に入らないようにチェック
+                if (ghostBlock[i].blockX >= playManager.getNextMinoX() &&
+                        ghostBlock[i].blockX < playManager.getNextMinoX() + 150 &&
+                        ghostBlock[i].blockY >= playManager.getNextMinoY() &&
+                        ghostBlock[i].blockY < playManager.getNextMinoY() + 150) {
+                    // NEXT欄の処理をスキップ
+                    return;
+                }
+
+                // 1ブロック分下げる
+                ghostBlock[i].blockY += BlockApp.createBlockSize().SIZE();
+            }
+
+            for (int i = 0; i < ghostBlock.length; i++) {
+                if (checkGhostCollision(ghostBlock[i])) {
+                    collisionDetected = true;
+                    break;
+                }
+            }
+
+            if (collisionDetected) {
+                // 衝突した場合、一段上に戻す
+                for (int i = 0; i < ghostBlock.length; i++) {
+                    ghostBlock[i].blockY -= BlockApp.createBlockSize().SIZE();
+                }
+            }
+        }
+    }
+
+    // ゴーストミノの衝突判定
+    private boolean checkGhostCollision(BlockApp ghostBlock) {
+        // フィールドの底部との衝突
+        if (ghostBlock.blockY >= PlayManager.bottom_y) {
+            return true;
+        }
+
+        // NEXT欄のブロックは無視
+        if (ghostBlock.blockX >= playManager.getNextMinoX() &&
+                ghostBlock.blockX < playManager.getNextMinoX() + 150 &&
+                ghostBlock.blockY >= playManager.getNextMinoY() &&
+                ghostBlock.blockY < playManager.getNextMinoY() + 150) {
+            // NEXT欄を無視
+            return false;
+        }
+
+        // 静止ブロックとの衝突
+        for (BlockApp staticBlock : PlayManager.staticBlocks) {
+            if (ghostBlock.blockX == staticBlock.blockX && ghostBlock.blockY == staticBlock.blockY) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public void drawGhost(Graphics2D g2) {
+        int margin = 2;
+        int blockSize = BlockApp.createBlockSize().SIZE() - (margin * 2);
+
+        for (BlockApp b : ghostBlock) {
+
+            g2.setColor(new Color(200, 200, 200, 100)); // ゴーストの半透明
+            g2.fillRect(b.blockX + margin, b.blockY + margin, blockSize, blockSize);
+        }
+    }
+
     private void deactivating() {
 
         deactivateCounter++;
@@ -255,6 +348,13 @@ public abstract class Mino {
     }
 
     public void draw(Graphics2D g2) {
+
+        // ゴースト位置を更新
+        updateGhost();
+        // ゴーストを描画
+        drawGhost(g2);
+
+        // 通常のミノ描画
         int margin = 2;
         int blockSize = BlockApp.createBlockSize().SIZE() - (margin * 2);
         for (BlockApp b : block) {

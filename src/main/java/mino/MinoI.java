@@ -2,12 +2,14 @@ package mino;
 
 import block.Block;
 import block.BlockApp;
+import game.PlayManager;
 
 import java.awt.*;
 
 public class MinoI extends Mino {
 
-    public MinoI() {
+    public MinoI(PlayManager playManager) {
+        super(playManager);
         init();
     }
 
