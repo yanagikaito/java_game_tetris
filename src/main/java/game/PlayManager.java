@@ -36,6 +36,11 @@ public class PlayManager {
     private final List<GlowEffect> glowEffects = new ArrayList<>();
     private boolean isGameOver = false;
 
+    // スコア
+    int level = 1;
+    int lines;
+    int score;
+
     public static int dropInterval = 60;
 
     public PlayManager() {
@@ -89,7 +94,7 @@ public class PlayManager {
             // 次のミノのデバッグ情報を更新
             System.out.println("次のミノ: " + minoClass.getSimpleName());
 
-            return minoClass.getDeclaredConstructor().newInstance(); // ミノのインスタンスを生成
+            return minoClass.getDeclaredConstructor(PlayManager.class).newInstance(this); // ミノのインスタンスを生成
         } catch (Exception e) {
             throw new RuntimeException("Mino作成中にエラーが発生しました。", e);
         }
@@ -104,7 +109,8 @@ public class PlayManager {
                 }
             }
         }
-        return false; // 衝突なし
+        // 衝突なし
+        return false;
     }
 
     public void update() {
@@ -151,17 +157,47 @@ public class PlayManager {
 
     private void checkDeleteRows() {
         if (isGameOver) {
-            // ゲームオーバー時は行削除をスキップ
             return;
         }
 
         int blockSize = BlockApp.createBlockSize().SIZE();
+        // 消去されたラインを記録
+        int linesCleared = 0;
         for (int y = top_y; y < bottom_y; y += blockSize) {
             if (isRowComplete(y)) {
                 deleteRow(y, blockSize);
                 shiftBlocksDown(y, blockSize);
+                // ライン数をカウント
+                linesCleared++;
             }
         }
+
+        // スコアとライン数の更新
+        if (linesCleared > 0) {
+            // 累積ライン数を更新
+            lines += linesCleared;
+            // スコア加算
+            score += linesCleared * 100;
+            System.out.println("現在のスコア: " + score);
+            System.out.println("消去したライン: " + lines);
+
+            // レベルアップ条件
+            if (lines / 10 > level - 1) {
+                // 10ラインごとにレベルアップ
+                level++;
+                increaseSpeed();
+            }
+        }
+    }
+
+    private void increaseSpeed() {
+        if (dropInterval > 20) {
+            // 最低値 20ms
+            dropInterval = Math.max(20, dropInterval - 5);
+        } else {
+            dropInterval -= -1;
+        }
+        System.out.println("レベルアップ！ 新しい落下間隔: " + dropInterval);
     }
 
     private boolean isRowComplete(int y) {
@@ -207,6 +243,7 @@ public class PlayManager {
         staticBlocks.forEach(block -> block.draw(g2));
         drawPauseScreen(g2);
         drawGameBoard(g2);
+        drawScoreAndLevel(g2);
 
         // ゲームオーバーの描画を追加（最後に描画）
         drawGameOverScreen(g2);
@@ -270,5 +307,21 @@ public class PlayManager {
             int y = top_y + 320;
             g2.drawString("GAME OVER", x, y);
         }
+    }
+
+    private void drawScoreAndLevel(Graphics2D g2) {
+        g2.setColor(Color.WHITE);
+        g2.setFont(new Font("Arial", Font.PLAIN, 20));
+        g2.drawString("SCORE : " + score, right_x - 640, top_y + 30);
+        g2.drawString("LINES : " + lines, right_x - 640, top_y + 50);
+        g2.drawString("LEVEL : " + level, right_x - 640, top_y + 70);
+    }
+
+    public int getNextMinoX() {
+        return NEXT_MINO_X;
+    }
+
+    public int getNextMinoY() {
+        return NEXT_MINO_Y;
     }
 }
