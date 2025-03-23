@@ -3,6 +3,7 @@ package game;
 import block.BlockApp;
 import frame.FrameApp;
 import mino.*;
+import sound.SoundManager;
 
 import java.awt.*;
 import java.util.*;
@@ -36,6 +37,9 @@ public class PlayManager {
     private final List<GlowEffect> glowEffects = new ArrayList<>();
     private boolean isGameOver = false;
 
+    // サウンド
+    private SoundManager soundManager;
+
     // スコア
     int level = 1;
     int lines;
@@ -64,6 +68,10 @@ public class PlayManager {
 
         nextMino = pickMino();
         nextMino.setXY(NEXT_MINO_X, NEXT_MINO_Y);
+
+        // フィールド音楽の開始
+        soundManager = new SoundManager();
+        soundManager.playWAV("src/main/resources/バーダックマン.wav");
     }
 
     private void initializeBoard() {
@@ -94,7 +102,8 @@ public class PlayManager {
             // 次のミノのデバッグ情報を更新
             System.out.println("次のミノ: " + minoClass.getSimpleName());
 
-            return minoClass.getDeclaredConstructor(PlayManager.class).newInstance(this); // ミノのインスタンスを生成
+            // ミノのインスタンスを生成
+            return minoClass.getDeclaredConstructor(PlayManager.class).newInstance(this);
         } catch (Exception e) {
             throw new RuntimeException("Mino作成中にエラーが発生しました。", e);
         }
@@ -147,6 +156,13 @@ public class PlayManager {
         if (isCollision(currentMino.block)) {
             System.out.println("ゲームオーバー判定: 天井でミノが衝突");
             isGameOver = true;
+
+            // フィールドの音楽停止
+            soundManager.stopBackgroundMusic();
+
+            // ゲームオーバー音の再生
+            soundManager.playGameOverSound("src/main/resources/物音03.wav");
+
             return;
         }
 
@@ -161,30 +177,44 @@ public class PlayManager {
         }
 
         int blockSize = BlockApp.createBlockSize().SIZE();
-        // 消去されたラインを記録
-        int linesCleared = 0;
+        // 行が削除されたかを追跡
+        boolean anyRowDeleted = false;
+
+        // 全ての行をチェック
         for (int y = top_y; y < bottom_y; y += blockSize) {
             if (isRowComplete(y)) {
+                // 行を削除
                 deleteRow(y, blockSize);
+                // 上のブロックを下に移動
                 shiftBlocksDown(y, blockSize);
-                // ライン数をカウント
-                linesCleared++;
+                // 行が削除されたことを記録
+                anyRowDeleted = true;
             }
         }
 
-        // スコアとライン数の更新
-        if (linesCleared > 0) {
-            // 累積ライン数を更新
-            lines += linesCleared;
+        // 行が削除された場合のみ音を再生
+        if (anyRowDeleted) {
+            soundManager.playClearSound("src/main/resources/ウィン.wav");
+        }
+
+        // スコアとレベルを更新
+        updateScoreAndLevel(anyRowDeleted);
+    }
+
+    private void updateScoreAndLevel(boolean rowDeleted) {
+        if (rowDeleted) {
+            // ライン数を増加
+            lines++;
             // スコア加算
-            score += linesCleared * 100;
+            score += 100;
+
             System.out.println("現在のスコア: " + score);
             System.out.println("消去したライン: " + lines);
 
-            // レベルアップ条件
+            // レベルアップ条件をチェック
             if (lines / 10 > level - 1) {
-                // 10ラインごとにレベルアップ
                 level++;
+                // レベルアップ時に速度を増加
                 increaseSpeed();
             }
         }
