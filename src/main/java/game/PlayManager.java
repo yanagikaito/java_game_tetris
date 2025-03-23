@@ -36,6 +36,8 @@ public class PlayManager {
     private final Queue<Class<? extends Mino>> minoQueue = new LinkedList<>();
     private final List<GlowEffect> glowEffects = new ArrayList<>();
     private boolean isGameOver = false;
+    // コンボカウント
+    private int comboCount = 0;
 
     // サウンド
     private SoundManager soundManager;
@@ -179,6 +181,8 @@ public class PlayManager {
         int blockSize = BlockApp.createBlockSize().SIZE();
         // 行が削除されたかを追跡
         boolean anyRowDeleted = false;
+        // このサイクルで消えたライン数（ここで初期化）
+        int linesCleared = 0;
 
         // 全ての行をチェック
         for (int y = top_y; y < bottom_y; y += blockSize) {
@@ -187,36 +191,49 @@ public class PlayManager {
                 deleteRow(y, blockSize);
                 // 上のブロックを下に移動
                 shiftBlocksDown(y, blockSize);
-                // 行が削除されたことを記録
                 anyRowDeleted = true;
+                // ライン数をカウント
+                linesCleared++;
             }
         }
 
-        // 行が削除された場合のみ音を再生
+        // 行が削除された場合のみスコア計算と音を再生
         if (anyRowDeleted) {
+            // 基本ポイント
+            int basePoints = 100;
+
+            // スコア加算（2回目以降の消去でのみボーナス適用）
+            if (comboCount > 0) {
+                score += (basePoints * linesCleared) + (comboCount * 50);
+            } else {
+                score += basePoints * linesCleared;
+            }
+
+            // 総ライン数を更新
+            lines += linesCleared;
+            // コンボカウントを増加
+            comboCount++;
+
+            System.out.println("現在のスコア: " + score);
+            System.out.println("消去したライン: " + linesCleared);
+            System.out.println("コンボ数: " + comboCount);
+
+            // サウンド再生
             soundManager.playClearSound("src/main/resources/ウィン.wav");
+        } else {
+            // コンボが途切れた場合
+            comboCount = 0;
         }
 
-        // スコアとレベルを更新
+        // スコアとレベルの更新
         updateScoreAndLevel(anyRowDeleted);
     }
 
     private void updateScoreAndLevel(boolean rowDeleted) {
-        if (rowDeleted) {
-            // ライン数を増加
-            lines++;
-            // スコア加算
-            score += 100;
-
-            System.out.println("現在のスコア: " + score);
-            System.out.println("消去したライン: " + lines);
-
-            // レベルアップ条件をチェック
-            if (lines / 10 > level - 1) {
-                level++;
-                // レベルアップ時に速度を増加
-                increaseSpeed();
-            }
+        if (rowDeleted && lines / 10 > level - 1) {
+            level++;
+            increaseSpeed();
+            System.out.println("レベルアップ！ 新しいレベル: " + level);
         }
     }
 
@@ -283,7 +300,8 @@ public class PlayManager {
             GlowEffect effect = iterator.next();
 
             // 光るエフェクトの描画
-            g2.setColor(new Color(255, 255, 0, effect.alpha)); // 黄色の光
+            // 黄色の光
+            g2.setColor(new Color(255, 255, 0, effect.alpha));
             g2.fillRect(effect.x, effect.y, effect.size, effect.size);
 
             // エフェクトの更新
