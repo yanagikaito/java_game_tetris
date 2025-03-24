@@ -14,9 +14,13 @@ public class PlayManager {
     private static final int WIDTH = 360;
     private static final int HEIGHT = 660;
 
-    // 一列が揃うブロック数
-    public static final int BLOCK_COUNT_THRESHOLD = 12;
     public static final int PAUSE_FONT_SIZE = 50;
+
+    // 時間カウンター
+    private int timeCounter = 0;
+
+    // 銀色ブロック追加間隔
+    private static final int SILVER_BLOCK_INTERVAL = 720;
 
     public static int left_x;
     public static int right_x;
@@ -36,6 +40,7 @@ public class PlayManager {
     private final Queue<Class<? extends Mino>> minoQueue = new LinkedList<>();
     private final List<GlowEffect> glowEffects = new ArrayList<>();
     private boolean isGameOver = false;
+
     // コンボカウント
     private int comboCount = 0;
 
@@ -111,11 +116,103 @@ public class PlayManager {
         }
     }
 
+    private void addSilverMino() {
+
+        int blockSize = BlockApp.createBlockSize().SIZE();
+
+        // ランダムにミノの種類を選択
+        List<Class<? extends Mino>> minoTypes = Arrays.asList(
+                MinoL.class, MinoJ.class, MinoT.class, MinoI.class, MinoO.class, MinoZ.class, MinoS.class
+        );
+        Class<? extends Mino> silverMinoType = minoTypes.get(RANDOM.nextInt(minoTypes.size()));
+
+        try {
+            // ランダムなミノを生成
+            Mino silverMino = silverMinoType.getDeclaredConstructor(PlayManager.class).newInstance(this);
+
+            // 銀色に変更
+            for (BlockApp block : silverMino.block) {
+                block.blockC = Color.LIGHT_GRAY;
+            }
+
+            boolean positionValid = false;
+            int attempts = 0;
+
+            // 最大10回試行
+            while (!positionValid && attempts < 10) {
+
+                // ミノの幅を計算 (最大4ブロック分)
+                int minoWidth = silverMino.block.length * blockSize;
+
+                // X座標が左端から右端まで収まるように範囲を制限
+                // ミノの右端がフィールドからはみ出さないように制限
+                int maxX = right_x - minoWidth;
+                int randomX = left_x + RANDOM.nextInt((maxX - left_x) / blockSize) * blockSize;
+
+                // 左端より外側にはみ出さないようチェック
+                if (randomX < left_x) {
+                    randomX = left_x;
+                    System.out.println("left_x = " + left_x);
+                }
+
+                // 最下段または既存のブロック直上に配置
+                // フィールドの底
+                int lowestY = bottom_y;
+                for (BlockApp staticBlock : staticBlocks) {
+                    if (staticBlock.blockX >= randomX && staticBlock.blockX < randomX + minoWidth) {
+                        if (staticBlock.blockY < lowestY) {
+                            lowestY = staticBlock.blockY;
+                        }
+                    }
+                }
+                int spawnY = lowestY - blockSize;
+                if (spawnY < top_y) {
+                    spawnY = top_y;
+                }
+
+                // 銀色ミノの衝突チェックを適用
+                boolean collisionDetected = false;
+                for (BlockApp silverBlock : silverMino.block) {
+                    silverBlock.blockX = randomX;
+                    silverBlock.blockY = spawnY;
+                    if (isCollision(new BlockApp[]{silverBlock})) {
+                        collisionDetected = true;
+                        break;
+                    }
+                }
+
+                if (!collisionDetected) {
+                    positionValid = true;
+
+                    // ミノを配置
+                    silverMino.setXY(randomX, spawnY);
+                    staticBlocks.addAll(Arrays.asList(silverMino.block));
+                    System.out.println("銀色ミノが生成されました。X: " + randomX + ", Y: " + spawnY);
+                } else {
+                    // 再試行
+                    attempts++;
+                }
+            }
+
+            if (!positionValid) {
+                System.out.println("銀色ミノの配置に失敗しました。試行回数が上限に達しました。");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private boolean isCollision(BlockApp[] blocks) {
         for (BlockApp block : blocks) {
+            // 左端または右端を超えた場合も衝突とみなす
+            if (block.blockX < left_x || block.blockX + BlockApp.createBlockSize().SIZE() > right_x) {
+                return true;
+            }
+
+            // 他の静止ブロックとの衝突チェック
             for (BlockApp staticBlock : staticBlocks) {
                 if (block.blockX == staticBlock.blockX && block.blockY == staticBlock.blockY) {
-                    // 衝突が検出された
                     return true;
                 }
             }
@@ -128,6 +225,13 @@ public class PlayManager {
         if (isGameOver) {
             // ゲームオーバー時はすべての処理を停止
             return;
+        }
+
+        timeCounter++;
+
+        if (timeCounter >= SILVER_BLOCK_INTERVAL) {
+            addSilverMino();
+            timeCounter = 0;
         }
 
         if (!currentMino.active) {
@@ -248,9 +352,11 @@ public class PlayManager {
     }
 
     private boolean isRowComplete(int y) {
+        int blockSize = BlockApp.createBlockSize().SIZE();
         return (int) staticBlocks.stream()
                 .filter(block -> block.blockY == y)
-                .count() == BLOCK_COUNT_THRESHOLD;
+                // ブロック数が横幅と一致する場合
+                .count() == (WIDTH / blockSize);
     }
 
     private void deleteRow(int y, int blockSize) {
