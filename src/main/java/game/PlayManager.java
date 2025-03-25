@@ -20,7 +20,8 @@ public class PlayManager {
     private int timeCounter = 0;
 
     // 銀色ブロック追加間隔
-    private static final int SILVER_BLOCK_INTERVAL = 720;
+    private static final int SILVER_BLOCK_INTERVAL = 3600;
+    private static final int MAX_ATTEMPTS = 10;
 
     public static int left_x;
     public static int right_x;
@@ -139,21 +140,20 @@ public class PlayManager {
             int attempts = 0;
 
             // 最大10回試行
-            while (!positionValid && attempts < 10) {
+            while (!positionValid && attempts < MAX_ATTEMPTS) {
 
                 // ミノの幅を計算 (最大4ブロック分)
                 int minoWidth = silverMino.block.length * blockSize;
 
                 // X座標が左端から右端まで収まるように範囲を制限
                 // ミノの右端がフィールドからはみ出さないように制限
+                int minX = left_x + BlockApp.createBlockSize().SIZE();
                 int maxX = right_x - minoWidth;
-                int randomX = left_x + RANDOM.nextInt((maxX - left_x) / blockSize) * blockSize;
+                int randomX = minX + RANDOM.nextInt((maxX - minX) / blockSize) * blockSize;
 
-                // 左端より外側にはみ出さないようチェック
-                if (randomX < left_x) {
-                    randomX = left_x;
-                    System.out.println("left_x = " + left_x);
-                }
+                // 範囲外の場合の調整
+                randomX = Math.max(randomX, left_x);
+                randomX = Math.min(randomX, right_x - minoWidth);
 
                 // 最下段または既存のブロック直上に配置
                 // フィールドの底
@@ -161,13 +161,17 @@ public class PlayManager {
                 for (BlockApp staticBlock : staticBlocks) {
                     if (staticBlock.blockX >= randomX && staticBlock.blockX < randomX + minoWidth) {
                         if (staticBlock.blockY < lowestY) {
-                            lowestY = staticBlock.blockY;
+                            lowestY = Math.min(lowestY, staticBlock.blockY);
                         }
                     }
                 }
                 int spawnY = lowestY - blockSize;
                 if (spawnY < top_y) {
+                    // フィールドの上端を超えないように調整
                     spawnY = top_y;
+                } else if (spawnY + blockSize > bottom_y) {
+                    // フィールドの底に収まるように調整
+                    spawnY = bottom_y - blockSize;
                 }
 
                 // 銀色ミノの衝突チェックを適用
@@ -204,6 +208,7 @@ public class PlayManager {
     }
 
     private boolean isCollision(BlockApp[] blocks) {
+
         for (BlockApp block : blocks) {
             // 左端または右端を超えた場合も衝突とみなす
             if (block.blockX < left_x || block.blockX + BlockApp.createBlockSize().SIZE() > right_x) {
