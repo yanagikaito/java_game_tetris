@@ -7,6 +7,7 @@ import window.GameWindow;
 import javax.swing.*;
 
 public class FrameFactory {
+
     public static GameFrame createFrame(FrameSize size, GameWindow gameWindow) {
         return () -> {
             JFrame frame = new JFrame();
