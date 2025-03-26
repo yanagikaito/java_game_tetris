@@ -5,6 +5,8 @@ import frame.FrameApp;
 import mino.*;
 import sound.SoundManager;
 
+import javax.swing.Timer;
+
 import java.awt.*;
 import java.util.*;
 import java.util.List;
@@ -20,7 +22,7 @@ public class PlayManager {
     private int timeCounter = 0;
 
     // 銀色ブロック追加間隔
-    private static final int SILVER_BLOCK_INTERVAL = 3600;
+    private static final int SILVER_BLOCK_INTERVAL = 1800;
     private static final int MAX_ATTEMPTS = 10;
 
     public static int left_x;
@@ -41,6 +43,13 @@ public class PlayManager {
     private final Queue<Class<? extends Mino>> minoQueue = new LinkedList<>();
     private final List<GlowEffect> glowEffects = new ArrayList<>();
     private boolean isGameOver = false;
+    // ATBゲージの現在値
+    private int atbGauge = 0;
+    // ATBゲージの最大値
+    private static final int ATB_MAX = 1800;
+    // 銀のブロックが出現可能か
+    private boolean isSilverBlockReady = false;
+    private static final int GLOW_ALPHA = 255;
 
     // コンボカウント
     private int comboCount = 0;
@@ -80,6 +89,10 @@ public class PlayManager {
         // フィールド音楽の開始
         soundManager = new SoundManager();
         soundManager.playWAV("src/main/resources/バーダックマン.wav");
+
+        // Timerの初期化と開始
+        Timer timer = new Timer(SILVER_BLOCK_INTERVAL, e -> gameLoop());
+        timer.start();
     }
 
     private void initializeBoard() {
@@ -234,8 +247,9 @@ public class PlayManager {
 
         timeCounter++;
 
+        updateATBGauge();
+
         if (timeCounter >= SILVER_BLOCK_INTERVAL) {
-            addSilverMino();
             timeCounter = 0;
         }
 
@@ -250,6 +264,35 @@ public class PlayManager {
             // ミノを更新
             currentMino.update();
         }
+    }
+
+    private void updateATBGauge() {
+        if (atbGauge < ATB_MAX) {
+            // ゲージを1ずつ増加
+            atbGauge++;
+        } else {
+            // 満タンになったらフラグをセット
+            isSilverBlockReady = true;
+            // ゲージをリセット
+            atbGauge = 0;
+        }
+    }
+
+    private void checkAndAddSilverMino() {
+        if (isSilverBlockReady) {
+            // 銀色ブロックを生成
+            addSilverMino();
+            // フラグをリセット
+            isSilverBlockReady = false;
+            System.out.println("ATBゲージ満タンにより銀色ブロックが出現しました！");
+        }
+    }
+
+    private void gameLoop() {
+        // ATBゲージを更新
+        updateATBGauge();
+        // 銀色ミノの出現を確認
+        checkAndAddSilverMino();
     }
 
     private void addCurrentMinoToStaticBlocks() {
@@ -402,6 +445,7 @@ public class PlayManager {
         drawPauseScreen(g2);
         drawGameBoard(g2);
         drawScoreAndLevel(g2);
+        drawATBGauge(g2);
 
         // ゲームオーバーの描画を追加（最後に描画）
         drawGameOverScreen(g2);
@@ -466,6 +510,28 @@ public class PlayManager {
             int y = top_y + 320;
             g2.drawString("GAME OVER", x, y);
         }
+    }
+
+    private void drawATBGauge(Graphics2D g2) {
+        int gaugeWidth = 200;
+        int gaugeHeight = 20;
+        int gaugeX = 50;
+        int gaugeY = 50;
+
+        // 背景
+        g2.setColor(Color.DARK_GRAY);
+        g2.fillRect(gaugeX, gaugeY, gaugeWidth, gaugeHeight);
+
+        Color glowColor = new Color(0, 0, 255, GLOW_ALPHA);
+        g2.setColor(glowColor);
+
+        // ゲージの進行
+        int filledWidth = (int) (gaugeWidth * ((double) atbGauge / ATB_MAX));
+        g2.fillRect(gaugeX, gaugeY, filledWidth, gaugeHeight);
+
+        // 枠線
+        g2.setColor(Color.WHITE);
+        g2.drawRect(gaugeX, gaugeY, gaugeWidth, gaugeHeight);
     }
 
     private void drawScoreAndLevel(Graphics2D g2) {
