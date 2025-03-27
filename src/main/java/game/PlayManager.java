@@ -23,7 +23,7 @@ public class PlayManager {
 
     // 銀色ブロック追加間隔
     private static final int SILVER_BLOCK_INTERVAL = 1800;
-    private static final int MAX_ATTEMPTS = 10;
+    private static final int MAX_ATTEMPTS = 1800;
 
     public static int left_x;
     public static int right_x;
@@ -43,6 +43,7 @@ public class PlayManager {
     private final Queue<Class<? extends Mino>> minoQueue = new LinkedList<>();
     private final List<GlowEffect> glowEffects = new ArrayList<>();
     private boolean isGameOver = false;
+
     // ATBゲージの現在値
     private int atbGauge = 0;
     // ATBゲージの最大値
