@@ -181,15 +181,19 @@ public abstract class Mino {
             switch (direction) {
                 case 1:
                     getDirection2();
+                    playManager.rotateCurrentMino();
                     break;
                 case 2:
                     getDirection3();
+                    playManager.rotateCurrentMino();
                     break;
                 case 3:
                     getDirection4();
+                    playManager.rotateCurrentMino();
                     break;
                 case 4:
                     getDirection1();
+                    playManager.rotateCurrentMino();
                     break;
             }
             KeyHandler.upPressed = false;
