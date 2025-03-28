@@ -42,8 +42,9 @@ public class BlockApp {
             g2.setColor(new Color(255, 255, 255, (int) (Math.random() * 128 + 128)));
             g2.fillOval(particleX, particleY, particleSize, particleSize);
 
+            // 明度を変化
             float[] hsbValues = Color.RGBtoHSB(blockC.getRed(), blockC.getGreen(), blockC.getBlue(), null);
-            blockC = Color.getHSBColor(hsbValues[0], hsbValues[1], (float) (Math.random() * 0.2 + 0.8)); // 明度を変化
+            blockC = Color.getHSBColor(hsbValues[0], hsbValues[1], (float) (Math.random() * 0.2 + 0.8));
         }
     }
 }

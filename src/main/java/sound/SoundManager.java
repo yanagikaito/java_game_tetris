@@ -43,6 +43,16 @@ public class SoundManager {
         playEffectSound(filePath);
     }
 
+    public void playBlockPutSound(String filePath) {
+        // エフェクト音専用
+        playEffectSound(filePath);
+    }
+
+    public void playBlockRotate(String filePath) {
+        // エフェクト音専用
+        playEffectSound(filePath);
+    }
+
     private void playEffectSound(String filePath) {
         try {
             File soundFile = new File(filePath);

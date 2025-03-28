@@ -117,6 +117,7 @@ public class PlayManager {
             Collections.shuffle(minoTypes, RANDOM);
             minoQueue.addAll(minoTypes);
         }
+
         try {
             // 次のミノの取得
             Class<? extends Mino> minoClass = minoQueue.poll();
@@ -129,6 +130,20 @@ public class PlayManager {
         } catch (Exception e) {
             throw new RuntimeException("Mino作成中にエラーが発生しました。", e);
         }
+    }
+
+    public void rotateCurrentMino() {
+        if (canRotate(currentMino)) { // 回転可能か確認
+            soundManager.playBlockRotate("src/main/resources/意味不明.wav"); // 回転音の再生
+            System.out.println("ミノが回転しました。回転音再生中。");
+        } else {
+            System.out.println("回転できません。");
+        }
+    }
+
+    private boolean canRotate(Mino mino) {
+        // 回転可能か確認するロジック
+        return true; // Placeholder
     }
 
     private void addSilverMino() {
@@ -153,7 +168,7 @@ public class PlayManager {
             boolean positionValid = false;
             int attempts = 0;
 
-            // 最大10回試行
+            // 最大1800回試行
             while (!positionValid && attempts < MAX_ATTEMPTS) {
 
                 // ミノの幅を計算 (最大4ブロック分)
@@ -297,7 +312,12 @@ public class PlayManager {
     }
 
     private void addCurrentMinoToStaticBlocks() {
+        // 現在のミノを静止ブロックに追加
         staticBlocks.addAll(Arrays.asList(currentMino.block));
+
+        // サウンド再生
+        soundManager.playBlockPutSound("src/main/resources/シャキーン.wav");
+
         currentMino.deactivating = false;
     }
 
