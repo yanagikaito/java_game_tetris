@@ -65,6 +65,10 @@ public class PlayManager {
 
     public static int dropInterval = 60;
 
+    // ハイライト用変数
+    private boolean highlightActive = false;
+    private int highlightX, highlightY;
+
     public PlayManager() {
 
         try {
@@ -143,7 +147,7 @@ public class PlayManager {
 
     private boolean canRotate(Mino mino) {
         // 回転可能か確認するロジック
-        return true; // Placeholder
+        return true;
     }
 
     private void addSilverMino() {
@@ -167,6 +171,8 @@ public class PlayManager {
 
             boolean positionValid = false;
             int attempts = 0;
+            int randomX = 0;
+            int spawnY = 0;
 
             // 最大1800回試行
             while (!positionValid && attempts < MAX_ATTEMPTS) {
@@ -178,7 +184,7 @@ public class PlayManager {
                 // ミノの右端がフィールドからはみ出さないように制限
                 int minX = left_x + BlockApp.createBlockSize().SIZE();
                 int maxX = right_x - minoWidth;
-                int randomX = minX + RANDOM.nextInt((maxX - minX) / blockSize) * blockSize;
+                randomX = minX + RANDOM.nextInt((maxX - minX) / blockSize) * blockSize;
 
                 // 範囲外の場合の調整
                 randomX = Math.max(randomX, left_x);
@@ -194,7 +200,7 @@ public class PlayManager {
                         }
                     }
                 }
-                int spawnY = lowestY - blockSize;
+                spawnY = lowestY - blockSize;
                 if (spawnY < top_y) {
                     // フィールドの上端を超えないように調整
                     spawnY = top_y;
@@ -216,10 +222,6 @@ public class PlayManager {
 
                 if (!collisionDetected) {
                     positionValid = true;
-
-                    // ミノを配置
-                    silverMino.setXY(randomX, spawnY);
-                    staticBlocks.addAll(Arrays.asList(silverMino.block));
                     System.out.println("銀色ミノが生成されました。X: " + randomX + ", Y: " + spawnY);
                 } else {
                     // 再試行
@@ -227,13 +229,42 @@ public class PlayManager {
                 }
             }
 
-            if (!positionValid) {
-                System.out.println("銀色ミノの配置に失敗しました。試行回数が上限に達しました。");
+            if (positionValid) {
+
+                // **ここで仮表示（ハイライト）を追加**
+                highlightSilverBlock(randomX, spawnY);
+
+                // 遅延して本物の銀ブロックを生成
+                int finalRandomX = randomX;
+                int finalSpawnY = spawnY;
+                Timer timer = new Timer(MAX_ATTEMPTS, e -> {
+                    silverMino.setXY(finalRandomX, finalSpawnY);
+                    staticBlocks.addAll(Arrays.asList(silverMino.block));
+                    System.out.println("銀色ミノが生成されました。X: " + finalRandomX + ", Y: " + finalSpawnY);
+                });
+                timer.setRepeats(false); // 一度だけ実行
+                timer.start();
+
+                if (!positionValid) {
+                    System.out.println("銀色ミノの配置に失敗しました。試行回数が上限に達しました。");
+                }
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void highlightSilverBlock(int x, int y) {
+        highlightActive = true;
+        highlightX = x;
+        highlightY = y;
+
+        Timer effectTimer = new Timer(500, e -> {
+            highlightActive = false;
+        });
+        effectTimer.setRepeats(false);
+        effectTimer.start();
     }
 
     private boolean isCollision(BlockApp[] blocks) {
@@ -463,6 +494,7 @@ public class PlayManager {
         currentMino.draw(g2);
         nextMino.draw(g2);
         staticBlocks.forEach(block -> block.draw(g2));
+        drawGhostSilver(g2);
         drawPauseScreen(g2);
         drawGameBoard(g2);
         drawScoreAndLevel(g2);
@@ -501,6 +533,14 @@ public class PlayManager {
         }
         for (int x = left_x; x <= right_x; x += blockSize) {
             g2.drawLine(x, top_y, x, bottom_y);
+        }
+    }
+
+    private void drawGhostSilver(Graphics2D g2) {
+        if (highlightActive) {
+            // 半透明の青
+            g2.setColor(new Color(0, 255, 255, 100));
+            g2.fillRect(highlightX, highlightY, BlockApp.createBlockSize().SIZE(), BlockApp.createBlockSize().SIZE());
         }
     }
 
